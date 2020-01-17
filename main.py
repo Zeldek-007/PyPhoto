@@ -28,6 +28,8 @@ imLayer.grid(row=0,column=0)
 #Create the canvas we'll draw on.
 canvas = tk.Canvas(layersFrame,width=srcImage.width,height=srcImage.height)
 canvas.grid(row=0,column=0)
+#LOAD IMAGE ONTO CANVAS
+canvas.create_image(srcImage.width/2,srcImage.height/2,image=imageIn)
 
 #Add a toolbox. :)
 toolFrame = tk.Frame(root)
@@ -95,16 +97,16 @@ class lineTool(plugin):
             canvas.create_line(self.memory[0],self.memory[1])
             self.memory=[]  #Clear mem.
             
-
+#EXAMPLE PLUGIN 2
 
 
 #Load plugins here.
 
 base = plugin()
-base.grid(row=0,column=1)
+base.grid(row=0,column=0)
 
 line = lineTool()
-line.grid(row=0,column=0)
+line.grid(row=0,column=1)
 
 #
 
