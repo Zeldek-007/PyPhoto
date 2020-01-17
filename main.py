@@ -80,44 +80,37 @@ class plugin(tk.Button):
     def clickExec(self):
         print("Hello'z.")
 
-    #Function called when the plugin button is pressed. 
-    # Should bind the appropriate actions to their keys/mouse-buttons and
-    # return a dictionary of keys for what parameters of the plugin are 
-    # supported for adjustment.
-    def clickToBind(self,probe=None,keyStore:dict=[]):
-        canvas.bind("<Button-1>",self.clickExec)
-        #Probe propDB for a pre-existing entry to load.
-        try:
-            propDB.keys[probe]
-        #Should only happen the first time a plugin is loaded. Init keyStore.
-        except KeyError:
-            propDB.addPluginKeyStore(keyStore)
-        #THEORETICALLY happens with probe=None. DO NOT USE IN PRODUCTION CODE!
-        except TypeError:   #?
-            #Debug func.
-            print("TypeError")
-            pass
-
     def __init__(self,name="NAME",icon="img/default.png"):
         self.name = name
         self.icon = PIL.ImageTk.PhotoImage(PIL.Image.open(icon))
         #Use this attribute to control data such as points of a polygon.
         self.memory = []
-        super().__init__(toolFrame,image=self.icon,command=lambda:self.clickToBind())
-        
+        super().__init__(toolFrame,image=self.icon,command=lambda:canvas.bind("<Button 1>",self.clickExec))
 
 #EXAMPLE PLUGIN
+#NEW CLICKEXEC MUST BE DEFINED AFTER INIT????
 class lineTool(plugin):
+    
+    def __init__(self):
+        super().__init__("LINE-TOOL")
 
-    @staticmethod
+    
     def clickExec(self,color=[0,0,0]):
-        pass
+        if len(self.memory) == 2:
+            canvas.create_line(self.memory[0],self.memory[1])
+            self.memory=[]  #Clear mem.
+        else:
+            self.memory += [canvas.coords]
 
 
 
 #Load plugins here.
-button = plugin()
-button.grid(row=0,column=0)
+
+base = plugin()
+base.grid(row=0,column=1)
+
+line = lineTool()
+#line.grid(row=0,column=0)
 
 
 
