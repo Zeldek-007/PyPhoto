@@ -62,6 +62,7 @@ class propFrame(tk.Frame):
 
     def __init__(self):
         super().__init__(root)
+
     
 
 propertyFrame = propFrame()
@@ -89,15 +90,36 @@ class lineTool(plugin):
         super().__init__("LINE-TOOL")
 
     
-    def toolAct(self,event,color=[0,0,0]):
+    def toolAct(self,event):
 
         self.memory += [(event.x,event.y)]
 
         if len(self.memory) == 2:
             canvas.create_line(self.memory[0],self.memory[1])
             self.memory=[]  #Clear mem.
-            
-#EXAMPLE PLUGIN 2
+
+#
+
+#HUGE THANKS TO
+#https://stackoverflow.com/questions/9886274/how-can-i-convert-canvas-content-to-an-image   
+# "Use Pillow to convert from  Postscript to PNG"
+
+#SAVE PLUGIN
+class saveTool(plugin):
+
+    def __init__(self):
+        super().__init__("SAVE-TOOL")
+    
+    def toolAct(self,event):
+        #Ask what to save the file as!
+        fileName = tk.filedialog.asksaveasfilename()
+        #DEBUG
+        print(fileName)
+        #Create a version of the canvas that PIL can use.
+        canvas.postscript(file=fileName)
+        img = PIL.Image.open(fileName)
+        img.save(fileName)
+
 
 
 #Load plugins here.
@@ -107,6 +129,9 @@ base.grid(row=0,column=0)
 
 line = lineTool()
 line.grid(row=0,column=1)
+
+save = saveTool()
+save.grid(row=0,column=2)
 
 #
 
