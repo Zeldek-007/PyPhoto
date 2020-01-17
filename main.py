@@ -62,45 +62,39 @@ class propFrame(tk.Frame):
         super().__init__(root)
     
 
-
-    
-
 propertyFrame = propFrame()
 #TEMPLATE
 
 #Create core plugins. :)
 class plugin(tk.Button):
 
-    #Function called by a button bound to it as a command by clickToBind().
-    #OVERRIDE THIS FUNCTION WITH YOUR OWN IMPLEMENTATION. :)
-
-    #Remove implicit provision of "self" to clickExec. 
-    # Solves argument overflow of canvas.bind().
-    @staticmethod   
-    def clickExec(self):
-        print("Hello'z.")
-
     def __init__(self,name="NAME",icon="img/default.png"):
         self.name = name
         self.icon = PIL.ImageTk.PhotoImage(PIL.Image.open(icon))
         #Use this attribute to control data such as points of a polygon.
         self.memory = []
-        super().__init__(toolFrame,image=self.icon,command=lambda:canvas.bind("<Button 1>",self.clickExec))
+        super().__init__(toolFrame,image=self.icon,command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
+    
+    #OVERRIDE THIS FUNCTION WITH YOUR OWN IMPLEMENTATION. :)    #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
+    def toolAct(self,event):
+        print("Hewwo from __init__!")
+
 
 #EXAMPLE PLUGIN
-#NEW CLICKEXEC MUST BE DEFINED AFTER INIT????
 class lineTool(plugin):
     
     def __init__(self):
         super().__init__("LINE-TOOL")
 
     
-    def clickExec(self,color=[0,0,0]):
+    def toolAct(self,event,color=[0,0,0]):
+
+        self.memory += [(event.x,event.y)]
+
         if len(self.memory) == 2:
             canvas.create_line(self.memory[0],self.memory[1])
             self.memory=[]  #Clear mem.
-        else:
-            self.memory += [canvas.coords]
+            
 
 
 
@@ -110,9 +104,9 @@ base = plugin()
 base.grid(row=0,column=1)
 
 line = lineTool()
-#line.grid(row=0,column=0)
+line.grid(row=0,column=0)
 
-
+#
 
 
 #Populate the toolbox.
@@ -124,7 +118,5 @@ line = lineTool()
 #     newButton.grid(row=0,column=plugin)
 
 ###########  
-
-
 
 root.mainloop()
