@@ -109,7 +109,11 @@ class saveTool(plugin):
 
     def __init__(self):
         super().__init__("SAVE-TOOL")
-    
+
+        #SPECIAL FUNCTION REQUIRES NO INPUT ON CANVAS AFTER BUTTON
+        self.configure(command="")
+        self.bind("<Button 1>",self.toolAct)
+
     def toolAct(self,event):
         #Ask what to save the file as!
         fileName = tk.filedialog.asksaveasfilename()
@@ -119,6 +123,8 @@ class saveTool(plugin):
         canvas.postscript(file=fileName)
         img = PIL.Image.open(fileName)
         img.save(fileName)
+        
+    
 
 
 
@@ -132,9 +138,6 @@ line.grid(row=0,column=1)
 
 save = saveTool()
 save.grid(row=0,column=2)
-
-#
-
 
 #Populate the toolbox.
 
