@@ -56,7 +56,7 @@ propDB = database()
 
 #Add a properties frame for if the plugin needs it.
 propFrame = tk.Frame(root)
-
+propFrame.grid(row=2,column=0,columnspan=3)
 #Create core plugin system.
 class plugin(tk.Button):
 
@@ -123,8 +123,27 @@ class hueTool(plugin):
     def __init__(self):
         super().__init__("HUE-TOOL","img/default.png",False)
 
+
+
     def toolAct(self,event):
-        pass		
+
+        #Reset preference pane.
+        propFrame.destroy()
+        propFrame.grid(row=2,column=0,columnspan=3)
+
+        #Adjust color saturation.
+        def adjust_saturation(r,g,b):
+            pass
+
+
+        #Create sliders for RGB manipulation.
+        r_slider = tk.Scale(propFrame, from_=-255, to=255,variable=r)
+        g_slider = tk.Scale(propFrame, from_=-255, to=255,variable=g)
+        b_slider = tk.Scale(propFrame, from_=-255, to=255,variable=b)
+
+        
+
+
 
 #Load plugins here.
 
