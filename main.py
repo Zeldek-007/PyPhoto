@@ -54,7 +54,7 @@ class database():
 
 propDB = database()
 
-#Add a PROPERTIES frame to adjust plugin settings. Pls nu crash. :(
+#Add a properties frame for if the plugin needs it.
 class propFrame(tk.Frame):
 
     def __init__(self):
@@ -63,9 +63,9 @@ class propFrame(tk.Frame):
     
 
 propertyFrame = propFrame()
-#TEMPLATE
 
-#Create core plugins. :)
+#TEMPLATE CREATION
+#Create core plugin system.
 class plugin(tk.Button):
 
     def __init__(self,name="NAME",icon="img/default.png"):
@@ -75,7 +75,7 @@ class plugin(tk.Button):
         self.memory = []
         super().__init__(toolFrame,image=self.icon,command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
     
-    #OVERRIDE THIS FUNCTION WITH YOUR OWN IMPLEMENTATION. :)    #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
+    #Override function in subclasses. #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
     def toolAct(self,event):
         print("Hewwo from __init__!")
 
@@ -117,10 +117,6 @@ class saveTool(plugin):
         canvas.postscript(file=fileName)
         img = PIL.Image.open(fileName)
         img.save(fileName)
-        
-    
-
-
 
 #Load plugins here.
 
