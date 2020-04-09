@@ -9,8 +9,8 @@ root = tk.Tk()
 
 #Init PIL Image source.
 #DO NOT DELETE, BUT COMMENTED OUT WHILE TESTING FOR EFFICIENCY.
-#srcImage=PIL.Image.open(tk.filedialog.askopenfilename())
-srcImage=PIL.Image.open("/home/zeldek/Pictures/ship.jpg")
+srcImage=PIL.Image.open(tk.filedialog.askopenfilename())
+#srcImage=PIL.Image.open("/home/zeldek/Pictures/ship.jpg")
 #Initialize PIL's tkinter-compatible PhotoImage to hold our base image.
 imageIn = PIL.ImageTk.PhotoImage(image=srcImage)
 
@@ -68,16 +68,22 @@ propertyFrame = propFrame()
 #Create core plugin system.
 class plugin(tk.Button):
 
-    def __init__(self,name="NAME",icon="img/default.png"):
+    #Override function in subclasses. #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
+    def toolAct(self,event):
+        print("Hewwo from __init__!")
+
+
+    def __init__(self,name="NAME",icon="img/default.png",bindToButton:bool=True):
         self.name = name
         self.icon = PIL.ImageTk.PhotoImage(PIL.Image.open(icon))
         #Use this attribute to control data such as points of a polygon.
         self.memory = []
-        super().__init__(toolFrame,image=self.icon,command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
+        #If the tool is meant to act immediately on the whole image, bindToButton=False.
+        if bindToButton:
+            super().__init__(toolFrame,image=self.icon,command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
+        else:
+            super().__init__(toolFrame,image=self.icon,command=lambda:self.toolAct())
     
-    #Override function in subclasses. #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
-    def toolAct(self,event):
-        print("Hewwo from __init__!")
 
 
 #EXAMPLE PLUGIN
@@ -117,6 +123,15 @@ class saveTool(plugin):
         canvas.postscript(file=fileName)
         img = PIL.Image.open(fileName)
         img.save(fileName)
+
+#COLOR SUBTRACTOR/ADDER PLUGIN
+class hueTool(plugin):
+
+    def __init__(self):
+        super().__init__("HUE-TOOL")
+
+    def toolAct(self,event):
+        pass
 
 #Load plugins here.
 
