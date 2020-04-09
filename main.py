@@ -68,22 +68,21 @@ propertyFrame = propFrame()
 #Create core plugin system.
 class plugin(tk.Button):
 
-    #Override function in subclasses. #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
-    def toolAct(self,event):
-        print("Hewwo from __init__!")
+		def __init__(self,name="NAME",icon="img/default.png",bindToButton:bool=True):
+			self.name = name
+			self.icon = PIL.ImageTk.PhotoImage(PIL.Image.open(icon))
+			#Use this attribute to control data such as points of a polygon.
+			self.memory = []
+			super().__init__(toolFrame,image=self.icon,command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
+			#If the tool is meant to act immediately on the whole image, bindToButton=False.
+			if not bindToButton:
+				self.configure(command="")
+				self.bind("<Button 1>",self.toolAct)
 
+		#Override function in subclasses. #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
+		def toolAct(self,event):
+			print("Hewwo from __init__!")
 
-    def __init__(self,name="NAME",icon="img/default.png",bindToButton:bool=True):
-        self.name = name
-        self.icon = PIL.ImageTk.PhotoImage(PIL.Image.open(icon))
-        #Use this attribute to control data such as points of a polygon.
-        self.memory = []
-        #If the tool is meant to act immediately on the whole image, bindToButton=False.
-        if bindToButton:
-            super().__init__(toolFrame,image=self.icon,command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
-        else:
-            super().__init__(toolFrame,image=self.icon,command=lambda:self.toolAct())
-    
 
 
 #EXAMPLE PLUGIN
@@ -108,11 +107,11 @@ class lineTool(plugin):
 class saveTool(plugin):
 
     def __init__(self):
-        super().__init__("SAVE-TOOL")
+        super().__init__("SAVE-TOOL","img/default.png",False)
 
         #SPECIAL FUNCTION REQUIRES NO INPUT ON CANVAS AFTER BUTTON
-        self.configure(command="")
-        self.bind("<Button 1>",self.toolAct)
+        #self.configure(command="")
+        #self.bind("<Button 1>",self.toolAct)
 
     def toolAct(self,event):
         #Ask what to save the file as!
