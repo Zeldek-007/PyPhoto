@@ -64,16 +64,17 @@ class propFrame(tk.Frame):
 
 propertyFrame = propFrame()
 
-#TEMPLATE CREATION
 #Create core plugin system.
 class plugin(tk.Button):
 
-		def __init__(self,name="NAME",icon="img/default.png",bindToButton:bool=True):
+		def __init__(self,name="NAME",icon="img/default.png",
+			bindToButton:bool=True):
 			self.name = name
 			self.icon = PIL.ImageTk.PhotoImage(PIL.Image.open(icon))
 			#Use this attribute to control data such as points of a polygon.
 			self.memory = []
-			super().__init__(toolFrame,image=self.icon,command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
+			super().__init__(toolFrame,image=self.icon,
+				command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
 			#If the tool is meant to act immediately on the whole image, bindToButton=False.
 			if not bindToButton:
 				self.configure(command="")
@@ -81,7 +82,7 @@ class plugin(tk.Button):
 
 		#Override function in subclasses. #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
 		def toolAct(self,event):
-			print("Hewwo from __init__!")
+			print("Hello from __init__!")
 
 
 
@@ -99,8 +100,12 @@ class lineTool(plugin):
         if len(self.memory) == 2:
             canvas.create_line(self.memory[0],self.memory[1])
             self.memory=[]  #Clear mem.
+
+
 #HUGE THANKS TO
-#https://stackoverflow.com/questions/9886274/how-can-i-convert-canvas-content-to-an-image   
+#https://
+#stackoverflow.com/questions/9886274
+#/how-can-i-convert-canvas-content-to-an-image   
 # "Use Pillow to convert from  Postscript to PNG"
 
 #SAVE PLUGIN
@@ -108,10 +113,6 @@ class saveTool(plugin):
 
     def __init__(self):
         super().__init__("SAVE-TOOL","img/default.png",False)
-
-        #SPECIAL FUNCTION REQUIRES NO INPUT ON CANVAS AFTER BUTTON
-        #self.configure(command="")
-        #self.bind("<Button 1>",self.toolAct)
 
     def toolAct(self,event):
         #Ask what to save the file as!
@@ -127,15 +128,14 @@ class saveTool(plugin):
 class hueTool(plugin):
 
     def __init__(self):
-        super().__init__("HUE-TOOL")
+        super().__init__("HUE-TOOL","img/default.png",False)
 
     def toolAct(self,event):
-        pass
+        print("Hey.")
+		
+		
 
 #Load plugins here.
-
-base = plugin()
-base.grid(row=0,column=0)
 
 line = lineTool()
 line.grid(row=0,column=1)
@@ -143,14 +143,8 @@ line.grid(row=0,column=1)
 save = saveTool()
 save.grid(row=0,column=2)
 
-#Populate the toolbox.
+hue = hueTool()
+hue.grid(row=0,column=3)
 
-#TEST WORKED
-
-# for plugin in range(10):
-#     newButton = tk.Button(toolFrame)
-#     newButton.grid(row=0,column=plugin)
-
-###########  
-
+#Start.
 root.mainloop()
