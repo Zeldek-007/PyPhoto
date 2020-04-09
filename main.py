@@ -55,14 +55,7 @@ class database():
 propDB = database()
 
 #Add a properties frame for if the plugin needs it.
-class propFrame(tk.Frame):
-
-    def __init__(self):
-        super().__init__(root)
-
-    
-
-propertyFrame = propFrame()
+propFrame = tk.Frame(root)
 
 #Create core plugin system.
 class plugin(tk.Button):
@@ -131,9 +124,7 @@ class hueTool(plugin):
         super().__init__("HUE-TOOL","img/default.png",False)
 
     def toolAct(self,event):
-        print("Hey.")
-		
-		
+        pass		
 
 #Load plugins here.
 
