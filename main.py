@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 
-#Comments attempt to adhere to a limit of 79 columns as per PEP8.
-#Otherwise, PEP regulations are entirely ignored because they're nonsensical.
-
 
 import tkinter as tk ; import tkinter.filedialog
 import PIL ; import PIL.ImageTk
@@ -97,9 +94,6 @@ class lineTool(plugin):
         if len(self.memory) == 2:
             canvas.create_line(self.memory[0],self.memory[1])
             self.memory=[]  #Clear mem.
-
-#
-
 #HUGE THANKS TO
 #https://stackoverflow.com/questions/9886274/how-can-i-convert-canvas-content-to-an-image   
 # "Use Pillow to convert from  Postscript to PNG"
