@@ -126,7 +126,38 @@ class hueTool(plugin):
     def __init__(self):
         super().__init__("HUE-TOOL","img/default.png",False)
 
+    def adjust_saturation(self,r,g,b):
 
+                #Init steppers.
+                lineNumber = -1
+                
+
+                imageAsArray = numpy.array(srcImage)
+                #Python hates modifying over an iteration.
+                imageAsArrayToIterate = imageAsArray
+                for line in imageAsArrayToIterate:
+                    lineNumber += 1
+                    pixelNumber = -1
+                    for _ in line:  #for pixel in line
+                        pixelNumber += 1
+
+                        '''
+                        #Test.
+                        print(pixelNumber)
+
+                        #Test.
+                        print(imageAsArray)
+                        print(imageAsArray[lineNumber])
+                        '''
+
+                        #Modify each channel individually, making sure not to go out of bounds.
+                        channel = 0
+                        for saturationAdjust in [r,g,b]:
+                            if imageAsArray[line][pixelNumber][channel] + saturationAdjust < 0: imageAsArray[line][pixelNumber][channel] = 0
+                            elif imageAsArray[line][pixelNumber][channel] + saturationAdjust > 255: imageAsArray[line][pixelNumber][channel] = 255
+                            else: imageAsArray[line][pixelNumber][channel] += saturationAdjust
+
+                return imageAsArray
 
     def toolAct(self,event):
 
