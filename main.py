@@ -27,12 +27,22 @@ imLayer.grid(row=0,column=0)
 #Create the canvas we'll draw on.
 canvas = tk.Canvas(layersFrame,width=srcImage.width,height=srcImage.height)
 canvas.grid(row=0,column=0)
-#LOAD IMAGE ONTO CANVAS
-canvas.create_image(srcImage.width/2,srcImage.height/2,image=imageIn)
+
+#   LOAD IMAGE ONTO CANVAS 
+#   Create a helper function to make this not so ridiculously long.    
+#   canvas.create_image(srcImage.width/2,srcImage.height/2,image=imageIn)
+def drawCanvas(src):
+    canvas.create_image(srcImage.width/2,srcImage.height/2,image=src)
+
+drawCanvas(imageIn)
 
 #Add a toolbox. :)
 toolFrame = tk.Frame(root)
 toolFrame.grid(row=0,column=0)
+
+#Create a helper function to 
+
+'''
 
 #Create a global, self-managing dictionary/database to persistently modify 
 #values for plugins.
@@ -56,6 +66,8 @@ class database():
         self.keys[keyStore][key]=newValue
 
 propDB = database()
+
+'''
 
 #Create core plugin system.
 class plugin(tk.Button):
@@ -130,8 +142,6 @@ class hueTool(plugin):
 
                 #Init steppers.
                 lineNumber = -1
-                
-
                 imageAsArray = numpy.array(srcImage)
                 #Python hates modifying over an iteration.
                 imageAsArrayToIterate = imageAsArray
@@ -141,31 +151,37 @@ class hueTool(plugin):
                     for _ in line:  #for pixel in line
                         pixelNumber += 1
 
-                        '''
-                        #Test.
-                        print(pixelNumber)
-
-                        #Test.
-                        print(imageAsArray)
-                        print(imageAsArray[lineNumber])
-                        '''
-
                         #Modify each channel individually, making sure not to go out of bounds.
                         channel = 0
                         for saturationAdjust in [r,g,b]:
+
+                            #TEST
+                            print(imageAsArray[line][pixelNumber][channel][0][0]) #TEST
+                            #----#
+
                             if imageAsArray[line][pixelNumber][channel] + saturationAdjust < 0: imageAsArray[line][pixelNumber][channel] = 0
                             elif imageAsArray[line][pixelNumber][channel] + saturationAdjust > 255: imageAsArray[line][pixelNumber][channel] = 255
                             else: imageAsArray[line][pixelNumber][channel] += saturationAdjust
 
-                return imageAsArray
+                #Return the modified image.
+                copyImage = srcImage
+                copyImage.putdata(imageAsArray)
+                return copyImage
+    
 
     def toolAct(self,event):
 
         propFrame = tk.Frame()
         propFrame.grid(row=2,column=0,columnspan=3)
-        
+
+        #Create a helper function to simplify slider command.
+        def drawSaturatedCanvas(r,b,g):
+            imageToPaint = self.adjust_saturation(r,g,b)
+            drawCanvas(imageToPaint)
+
+
         #Create sliders for RGB manipulation.
-        r_slider = tk.Scale(propFrame, from_=-255, to=255)
+        r_slider = tk.Scale(propFrame, from_=-255, to=255) #Try the command.
         r_slider.grid(row=0,column=0)
 
         g_slider = tk.Scale(propFrame, from_=-255, to=255)
@@ -173,8 +189,11 @@ class hueTool(plugin):
 
         b_slider = tk.Scale(propFrame, from_=-255, to=255)
         b_slider.grid(row=2,column=0)
-        
 
+        #Assign drawSaturatedCanvas as the command for each slider.
+        for x in [r_slider,g_slider,b_slider]:  x.configure(command=drawSaturatedCanvas(r_slider.get(),g_slider.get(),b_slider.get()))
+        
+        
 
 
 #Load plugins here.
