@@ -3,6 +3,8 @@
 
 import tkinter as tk ; import tkinter.filedialog
 import PIL ; import PIL.ImageTk
+#NEW DEPENDENCY
+import numpy
 
 #Define root window.
 root = tk.Tk()
@@ -36,7 +38,8 @@ toolFrame.grid(row=0,column=0)
 #values for plugins.
 class database():
     
-    # While the use of this __init__ is not currently intended to be used, it
+    # While the use of this __init__ is 
+    #not currently intended to be used, it
     # allows a default set of keys to be imported into the database.
     #Perhaps preferences for different plugins could be stored in a file 
     # and recalled here?
@@ -54,9 +57,6 @@ class database():
 
 propDB = database()
 
-#Add a properties frame for if the plugin needs it.
-propFrame = tk.Frame(root)
-propFrame.grid(row=2,column=0,columnspan=3)
 #Create core plugin system.
 class plugin(tk.Button):
 
@@ -64,16 +64,19 @@ class plugin(tk.Button):
 			bindToButton:bool=True):
 			self.name = name
 			self.icon = PIL.ImageTk.PhotoImage(PIL.Image.open(icon))
-			#Use this attribute to control data such as points of a polygon.
+			#Use this attribute to control data such as 
+                        #points of a polygon.
 			self.memory = []
 			super().__init__(toolFrame,image=self.icon,
 				command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
-			#If the tool is meant to act immediately on the whole image, bindToButton=False.
+			#If tool is meant to act immediately on the whole 
+                        #image, bindToButton=False.
 			if not bindToButton:
 				self.configure(command="")
 				self.bind("<Button 1>",self.toolAct)
 
-		#Override function in subclasses. #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
+		#Override function in subclasses. 
+                #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
 		def toolAct(self,event):
 			print("Hello from __init__!")
 
@@ -127,20 +130,18 @@ class hueTool(plugin):
 
     def toolAct(self,event):
 
-        #Reset preference pane.
-        propFrame.destroy()
+        propFrame = tk.Frame()
         propFrame.grid(row=2,column=0,columnspan=3)
-
-        #Adjust color saturation.
-        def adjust_saturation(r,g,b):
-            pass
-
-
+        
         #Create sliders for RGB manipulation.
-        r_slider = tk.Scale(propFrame, from_=-255, to=255,variable=r)
-        g_slider = tk.Scale(propFrame, from_=-255, to=255,variable=g)
-        b_slider = tk.Scale(propFrame, from_=-255, to=255,variable=b)
+        r_slider = tk.Scale(propFrame, from_=-255, to=255)
+        r_slider.grid(row=0,column=0)
 
+        g_slider = tk.Scale(propFrame, from_=-255, to=255)
+        g_slider.grid(row=1,column=0)
+
+        b_slider = tk.Scale(propFrame, from_=-255, to=255)
+        b_slider.grid(row=2,column=0)
         
 
 

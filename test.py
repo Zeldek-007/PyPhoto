@@ -21,23 +21,26 @@ for line in numpy.asarray(srcImage):
 #--#
 
 #TEST TEST
-array = numpy.asarray(srcImage)
-#MUST SET WRITABLE
+array = numpy.array(srcImage)   #DO ARRAY, NOT ASARRAY
 print(array.flags)
 
 def adjust_saturation(r,g,b):
 
             #Init steppers.
             lineNumber = -1
-            pixelNumber = -1
+            
 
-            imageAsArray = numpy.asarray(srcImage)
+            imageAsArray = numpy.array(srcImage)
             #Python hates modifying over an iteration.
             imageAsArrayToIterate = imageAsArray
             for line in imageAsArrayToIterate:
                 lineNumber += 1
+                pixelNumber = -1
                 for _ in line:  #for pixel in line
                     pixelNumber += 1
+
+                    #Test.
+                    print(pixelNumber)
 
                     #Test.
                     print(imageAsArray)
@@ -56,4 +59,4 @@ def adjust_saturation(r,g,b):
 
 
 
-#adjust_saturation(0,0,0)
+adjust_saturation(0,0,0)
