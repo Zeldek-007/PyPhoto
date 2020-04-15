@@ -69,7 +69,7 @@ class database():
 
 propDB = database()
 '''
-
+#   SCREENSHOT  1   START   #
 #Create core plugin system.
 class plugin(tk.Button):
 
@@ -86,11 +86,11 @@ class plugin(tk.Button):
 				self.bind("<Button 1>",self.toolAct)
 
 		#Override function in subclasses. 
-        #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
+        #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM.
 		def toolAct(self,event):
 			pass
 
-#EXAMPLE PLUGIN
+#LINE PLUGIN
 class lineTool(plugin):
     '''
     Draw a line with 2 points on the screen.
@@ -104,7 +104,7 @@ class lineTool(plugin):
         if len(self.memory) == 2:
             canvas.create_line(self.memory[0],self.memory[1])
             self.memory=[]  #Clear mem.
-
+#   SCREENSHOT  1   END     #
 
 #HUGE THANKS TO
 #https://
@@ -131,7 +131,7 @@ class hueTool(plugin):
 
     def __init__(self):
         super().__init__("HUE-TOOL","img/default.png",False)
-
+#   SCREENSHOT  2   START   #
     def adjust_saturation(self,r,g,b):
 
         '''
@@ -173,7 +173,7 @@ class hueTool(plugin):
         saveImage.putdata(fillList)
         saveImage.save(tmpPath)
         return tmpPath
-
+#   SCREENSHOT  2   END     #
     def toolAct(self,event):
 
         propFrame = tk.Frame()
