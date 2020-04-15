@@ -1,29 +1,25 @@
 #!/usr/bin/python3
 # MrR Branch example
 
+#Import dependencies.
 import tkinter as tk ; import tkinter.filedialog
 import PIL ; import PIL.ImageTk
-#NEW DEPENDENCY
 import numpy
 
 #Define root window.
 root = tk.Tk()
 
 #Init PIL Image source.
-#DO NOT DELETE, BUT COMMENTED OUT WHILE TESTING FOR EFFICIENCY.
 srcImage=PIL.Image.open(tk.filedialog.askopenfilename())
-#srcImage=PIL.Image.open("/home/zeldek/Pictures/blue.png")
 #Initialize PIL's tkinter-compatible PhotoImage to hold our base image.
 imageIn = PIL.ImageTk.PhotoImage(image=srcImage)
 
 #Create a frame holding image layers.
 layersFrame = tk.Frame(root)
 layersFrame.grid(row=1,column=0)
-
 #Create a "label" holding the source image.
 imLayer = tk.Label(layersFrame,image=imageIn)
 imLayer.grid(row=0,column=0)
-
 #Create the canvas we'll draw on.
 canvas = tk.Canvas(layersFrame,width=srcImage.width,height=srcImage.height)
 canvas.grid(row=0,column=0)
@@ -31,10 +27,8 @@ canvas.grid(row=0,column=0)
 #Sacrifice to the garbage collection gods of Python.
 globalImage = srcImage
 
-#   LOAD IMAGE ONTO CANVAS 
-#   Create a helper function to make this not so ridiculously long.    
-#   canvas.create_image(srcImage.width/2,srcImage.height/2,image=imageIn)
-def drawCanvas(src):
+#   Create a helper function to simplify drawing the canvas.
+def drawCanvas(src):    #can handle a file path or a PhotoImage
     if type(src) != str:
         canvas.create_image(srcImage.width/2,srcImage.height/2,image=src)
     elif type(src) == str:
@@ -45,9 +39,9 @@ def drawCanvas(src):
         canvas.delete("all")
         canvas.create_image(srcImage.width/2,srcImage.height/2,image=globalImage)
 
+#Load in the first image.
 drawCanvas(imageIn)
-
-#Add a toolbox. :)
+#Add a toolbox to place plugins in.
 toolFrame = tk.Frame(root)
 toolFrame.grid(row=0,column=0)
 
@@ -79,17 +73,14 @@ propDB = database()
 #Create core plugin system.
 class plugin(tk.Button):
 
-		def __init__(self,name="NAME",icon="img/default.png",
-			bindToButton:bool=True):
+		def __init__(self,name="NAME",icon="img/default.png",bindToButton:bool=True):
 			self.name = name
 			self.icon = PIL.ImageTk.PhotoImage(PIL.Image.open(icon))
-			#Use this attribute to control data such as 
-                        #points of a polygon.
+			#Use this attribute to control data such as points of a polygon.
 			self.memory = []
 			super().__init__(toolFrame,image=self.icon,
 				command=lambda:canvas.bind( "<Button 1>" , self.toolAct ) )
-			#If tool is meant to act immediately on the whole 
-                        #image, bindToButton=False.
+			#If tool acts immediately on the whole image, bindToButton=False.
 			if not bindToButton:
 				self.configure(command="")
 				self.bind("<Button 1>",self.toolAct)
@@ -97,22 +88,19 @@ class plugin(tk.Button):
 		#Override function in subclasses. 
         #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
 		def toolAct(self,event):
-			print("Hello from __init__!")
+			pass
 
 #EXAMPLE PLUGIN
 class lineTool(plugin):
-    
     '''
     Draw a line with 2 points on the screen.
     '''
-
     def __init__(self):
         super().__init__("LINE-TOOL")
-    
     def toolAct(self,event):
-
+        #Add the point clicked on the image to memory.
         self.memory += [(event.x,event.y)]
-
+        #If there are 2 points, draw the line and begin again.
         if len(self.memory) == 2:
             canvas.create_line(self.memory[0],self.memory[1])
             self.memory=[]  #Clear mem.
@@ -133,8 +121,6 @@ class saveTool(plugin):
     def toolAct(self,event):
         #Ask what to save the file as!
         fileName = tk.filedialog.asksaveasfilename()
-        #DEBUG
-        print(fileName)
         #Create a version of the canvas that PIL can use.
         canvas.postscript(file=fileName)
         img = PIL.Image.open(fileName)
@@ -163,7 +149,6 @@ class hueTool(plugin):
             #Modify each channel individually, making sure not to go out of bounds.
             channel = 0
             for saturationAdjust in [r,g,b]:
-
                 #Numpy complains about editing its array if edits aren't typecasted.
                 if imageAsArray[pixelNumber][channel] + numpy.int64(saturationAdjust) < 0: imageAsArray[pixelNumber][channel] = numpy.int64(0)
                 elif imageAsArray[pixelNumber][channel] + numpy.int64(saturationAdjust) > 255: imageAsArray[pixelNumber][channel] = numpy.int64(255)
@@ -207,23 +192,20 @@ class hueTool(plugin):
         #Create a helper function to simplify slider command.
         def drawSaturatedCanvas(r,g,b):
 
-            print(r,g,b)
+            #Typecast to integers from entry-field's strings.
             r = int(r) ; g = int(g) ; b = int(b)
-
+            #Get path to the temp image.
             imagePath = self.adjust_saturation(r,g,b)
             drawCanvas(imagePath)
-
+        #Draw!
         HIT_ME = tk.Button(propFrame,command=lambda:drawSaturatedCanvas(r_var.get(),g_var.get(),b_var.get()))
         HIT_ME.grid(row=1,column=1)
 
 #Load plugins here.
-
 line = lineTool()
 line.grid(row=0,column=1)
-
 save = saveTool()
 save.grid(row=0,column=2)
-
 hue = hueTool()
 hue.grid(row=0,column=3)
 
