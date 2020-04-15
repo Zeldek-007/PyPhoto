@@ -12,7 +12,7 @@ root = tk.Tk()
 #Init PIL Image source.
 #DO NOT DELETE, BUT COMMENTED OUT WHILE TESTING FOR EFFICIENCY.
 srcImage=PIL.Image.open(tk.filedialog.askopenfilename())
-#srcImage=PIL.Image.open("/home/zeldek/Pictures/ship.jpg")
+#srcImage=PIL.Image.open("/home/zeldek/Pictures/blue.png")
 #Initialize PIL's tkinter-compatible PhotoImage to hold our base image.
 imageIn = PIL.ImageTk.PhotoImage(image=srcImage)
 
@@ -28,11 +28,22 @@ imLayer.grid(row=0,column=0)
 canvas = tk.Canvas(layersFrame,width=srcImage.width,height=srcImage.height)
 canvas.grid(row=0,column=0)
 
+#Sacrifice to the garbage collection gods of Python.
+globalImage = srcImage
+
 #   LOAD IMAGE ONTO CANVAS 
 #   Create a helper function to make this not so ridiculously long.    
 #   canvas.create_image(srcImage.width/2,srcImage.height/2,image=imageIn)
 def drawCanvas(src):
-    canvas.create_image(srcImage.width/2,srcImage.height/2,image=src)
+    if type(src) != str:
+        canvas.create_image(srcImage.width/2,srcImage.height/2,image=src)
+    elif type(src) == str:
+
+        global globalImage
+        baseImage = PIL.Image.open(src)
+        globalImage = PIL.ImageTk.PhotoImage(image=baseImage)
+        canvas.delete("all")
+        canvas.create_image(srcImage.width/2,srcImage.height/2,image=globalImage)
 
 drawCanvas(imageIn)
 
@@ -40,10 +51,7 @@ drawCanvas(imageIn)
 toolFrame = tk.Frame(root)
 toolFrame.grid(row=0,column=0)
 
-#Create a helper function to 
-
 '''
-
 #Create a global, self-managing dictionary/database to persistently modify 
 #values for plugins.
 class database():
@@ -66,7 +74,6 @@ class database():
         self.keys[keyStore][key]=newValue
 
 propDB = database()
-
 '''
 
 #Create core plugin system.
@@ -88,18 +95,19 @@ class plugin(tk.Button):
 				self.bind("<Button 1>",self.toolAct)
 
 		#Override function in subclasses. 
-                #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
+        #MUST HAVE BOTH SELF & EVENT ARGUMENTS AT MINIMUM!!!
 		def toolAct(self,event):
 			print("Hello from __init__!")
-
-
 
 #EXAMPLE PLUGIN
 class lineTool(plugin):
     
+    '''
+    Draw a line with 2 points on the screen.
+    '''
+
     def __init__(self):
         super().__init__("LINE-TOOL")
-
     
     def toolAct(self,event):
 
@@ -140,61 +148,73 @@ class hueTool(plugin):
 
     def adjust_saturation(self,r,g,b):
 
-                #Init steppers.
-                lineNumber = -1
-                imageAsArray = numpy.array(srcImage)
-                #Python hates modifying over an iteration.
-                imageAsArrayToIterate = imageAsArray
-                for line in imageAsArrayToIterate:
-                    lineNumber += 1
-                    pixelNumber = -1
-                    for _ in line:  #for pixel in line
-                        pixelNumber += 1
+        '''
+        Adjust saturation of a given image. Note that only images with
+        some color in each channel and a transparency value != 0 are supported.
+        '''
 
-                        #Modify each channel individually, making sure not to go out of bounds.
-                        channel = 0
-                        for saturationAdjust in [r,g,b]:
+        imageAsArray = numpy.array(srcImage.getdata())  #Create the pixel array to modify.
+        imageAsArrayToIterate = imageAsArray    #Python hates modifying over an iteration, so we create a clone.
+        pixelNumber = -1    #Init a pixel stepper.
 
-                            #TEST
-                            print(imageAsArray[line][pixelNumber][channel][0][0]) #TEST
-                            #----#
+        for _ in imageAsArrayToIterate: #for pixel  #COULD REFACTOR
+            pixelNumber += 1
 
-                            if imageAsArray[line][pixelNumber][channel] + saturationAdjust < 0: imageAsArray[line][pixelNumber][channel] = 0
-                            elif imageAsArray[line][pixelNumber][channel] + saturationAdjust > 255: imageAsArray[line][pixelNumber][channel] = 255
-                            else: imageAsArray[line][pixelNumber][channel] += saturationAdjust
+            #Modify each channel individually, making sure not to go out of bounds.
+            channel = 0
+            for saturationAdjust in [r,g,b]:
 
-                #Return the modified image.
-                copyImage = srcImage
-                copyImage.putdata(imageAsArray)
-                return copyImage
-    
+                #Numpy complains about editing its array if edits aren't typecasted.
+                if imageAsArray[pixelNumber][channel] + numpy.int64(saturationAdjust) < 0: imageAsArray[pixelNumber][channel] = numpy.int64(0)
+                elif imageAsArray[pixelNumber][channel] + numpy.int64(saturationAdjust) > 255: imageAsArray[pixelNumber][channel] = numpy.int64(255)
+                else: imageAsArray[pixelNumber][channel] += numpy.int64(saturationAdjust)
+
+                channel += 1
+
+        pixelNumber = -1
+        #For loop turns all the pixels into TUPLES.
+        fillList = []
+        for _ in range(len(imageAsArrayToIterate)):
+
+            pixelNumber += 1
+            listToTuple = tuple(imageAsArray[pixelNumber])
+            fillList.append(listToTuple)
+            
+        fillList = tuple(fillList)
+
+        #Return the path to the new image with different saturation.
+        tmpPath = "/tmp/image.png"
+        saveImage = PIL.Image.new(srcImage.mode,(srcImage.width,srcImage.height))    #Initalize with some similar parameters.
+        saveImage.putdata(fillList)
+        saveImage.save(tmpPath)
+        return tmpPath
 
     def toolAct(self,event):
 
         propFrame = tk.Frame()
         propFrame.grid(row=2,column=0,columnspan=3)
 
+        #Create fields for RGB manipulation.
+        r_var = tk.Entry(propFrame)
+        r_var.grid(row=0,column=0)
+
+        g_var = tk.Entry(propFrame)
+        g_var.grid(row=0,column=1)
+
+        b_var = tk.Entry(propFrame)
+        b_var.grid(row=0,column=2)
+
         #Create a helper function to simplify slider command.
-        def drawSaturatedCanvas(r,b,g):
-            imageToPaint = self.adjust_saturation(r,g,b)
-            drawCanvas(imageToPaint)
+        def drawSaturatedCanvas(r,g,b):
 
+            print(r,g,b)
+            r = int(r) ; g = int(g) ; b = int(b)
 
-        #Create sliders for RGB manipulation.
-        r_slider = tk.Scale(propFrame, from_=-255, to=255) #Try the command.
-        r_slider.grid(row=0,column=0)
+            imagePath = self.adjust_saturation(r,g,b)
+            drawCanvas(imagePath)
 
-        g_slider = tk.Scale(propFrame, from_=-255, to=255)
-        g_slider.grid(row=1,column=0)
-
-        b_slider = tk.Scale(propFrame, from_=-255, to=255)
-        b_slider.grid(row=2,column=0)
-
-        #Assign drawSaturatedCanvas as the command for each slider.
-        for x in [r_slider,g_slider,b_slider]:  x.configure(command=drawSaturatedCanvas(r_slider.get(),g_slider.get(),b_slider.get()))
-        
-        
-
+        HIT_ME = tk.Button(propFrame,command=lambda:drawSaturatedCanvas(r_var.get(),g_var.get(),b_var.get()))
+        HIT_ME.grid(row=1,column=1)
 
 #Load plugins here.
 
